@@ -21,20 +21,20 @@ pinout:
   ui[0]: "b0"
 
   # Outputs (Resultado)
-  uo[7]: "RESULT7"
-  uo[6]: "RESULT6"
-  uo[5]: "RESULT5"
-  uo[4]: "RESULT4"
-  uo[3]: "RESULT3"
-  uo[2]: "RESULT2"
-  uo[1]: "RESULT1"
-  uo[0]: "RESULT0"
+  uo[7]: "result7"
+  uo[6]: "result6"
+  uo[5]: "result5"
+  uo[4]: "result4"
+  uo[3]: "result3"
+  uo[2]: "result2"
+  uo[1]: "result1"
+  uo[0]: "result0"
 
   # Bidirectional pins (SEL y CARRY_OUT)
-  uio[0]: "SEL0"  # Corregido: ahora SEL0 está en [0]
-  uio[1]: "SEL1"  # SEL1 en [1]
-  uio[2]: "SEL2"  # SEL2 en [2]
-  uio[3]: "CARRY_OUT"  # Movido a [3]
+  uio[0]: "sel0"  # Corregido: ahora SEL0 está en [0]
+  uio[1]: "sel1"  # SEL1 en [1]
+  uio[2]: "sel2"  # SEL2 en [2]
+  uio[3]: "carry_out"  # Movido a [3]
   uio[4]: ""
   uio[5]: ""
   uio[6]: ""
