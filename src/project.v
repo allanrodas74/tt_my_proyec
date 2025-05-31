@@ -20,20 +20,19 @@ module tt_um_allanrodas74 (
 
     ALU_8bit alu (
         .a(ui_in),
-        .b(uio_in),
-        .sel(uio_in[2:0]),
+        .b(uio_in[7:4]),  // Usar uio_in[7:4] para B si es necesario
+        .sel(uio_in[2:0]),  // Ahora SEL0=uio[0], SEL1=uio[1], SEL2=uio[2]
         .result(result),
         .carry_out(carry_out)
     );
 
     assign uo_out = result;
-    assign uio_out[0] = carry_out;
-    assign uio_oe[0] = 1'b1;
-    assign uio_out[7:1] = 7'b0;
-    assign uio_oe[7:1] = 7'b0;
-
+    assign uio_out[3] = carry_out;  // CARRY_OUT en uio[3]
+    assign uio_oe[3] = 1'b1;       // Habilitar solo el pin de CARRY_OUT como output
+    assign uio_out[7:4] = 4'b0;    // Pines no usados
+    assign uio_out[2:0] = 3'b0;
+    assign uio_oe[7:0] = 8'b00001000;  // Solo uio[3] como output (0=input, 1=output)
 endmodule
-
 
 module ALU_8bit (
     input  [7:0] a,
