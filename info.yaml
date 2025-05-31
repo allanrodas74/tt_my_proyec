@@ -1,36 +1,29 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
-  language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  title:        "ALU 8-bit Simple"
+  author:       "Your Name"
+  discord:      "YourDiscord#1234"
+  description:  "ALU 8-bit con suma, resta, lógica y desplazamientos"
+  language:     "Verilog"
+  clock_hz:     0
 
-  # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  tiles: "1x1"
 
-  # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_allanrodas74"
 
-  # List your project's source files here.
-  # Source files must be in ./src and you must list each source file separately, one per line.
-  # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
 
-# The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
-# This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[7]: "A3"      # Bit 7 del operando A (más significativo)
+  ui[7]: "A3"
   ui[6]: "A2"
   ui[5]: "A1"
-  ui[4]: "A0"      # Bit 4 del operando A (menos significativo)
-  ui[3]: "B3"      # Bit 3 del operando B (más significativo)
+  ui[4]: "A0"
+  ui[3]: "B3"
   ui[2]: "B2"
   ui[1]: "B1"
-  ui[0]: "B0"      # Bit 0 del operando B (menos significativo)
+  ui[0]: "B0"
 
   # Outputs
   uo[7]: "RESULT7"
@@ -43,15 +36,13 @@ pinout:
   uo[0]: "RESULT0"
 
   # Bidirectional pins
-  uio[0]: "CARRY_OUT"    # Usas este para la salida del carry
-  uio[1]: "SEL0"         # Código operación bit 0 (selector)
-  uio[2]: "SEL1"         # Código operación bit 1
-  uio[3]: "SEL2"         # Código operación bit 2
-  uio[4]: ""             # No usado
+  uio[0]: "CARRY_OUT"
+  uio[1]: "SEL0"
+  uio[2]: "SEL1"
+  uio[3]: "SEL2"
+  uio[4]: ""
   uio[5]: ""
   uio[6]: ""
   uio[7]: ""
 
-
-# Do not change!
 yaml_version: 6
