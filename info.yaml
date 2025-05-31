@@ -8,6 +8,7 @@ project:
   top_module: "tt_um_allanrodas74"
   source_files:
     - "project.v"
+    - "tt_alu.v"
 
 pinout:
   # Inputs (A y B)
