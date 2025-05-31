@@ -4,6 +4,7 @@
  */
 
 `default_nettype none
+
 module tt_um_allanrodas74 (
     input  [7:0]  ui_in,
     output [7:0]  uo_out,
@@ -43,6 +44,8 @@ module ALU_8bit (
 );
 
     wire [8:0] sum;
+    wire [7:0] b_neg;
+    wire [8:0] sum_sub;
 
     PrefixAdder8 prefix_adder (
         .a(a),
@@ -50,49 +53,39 @@ module ALU_8bit (
         .sum(sum)
     );
 
+    assign b_neg = ~b + 8'b1;
+
+    PrefixAdder8 prefix_sub (
+        .a(a),
+        .b(b_neg),
+        .sum(sum_sub)
+    );
+
     always @(*) begin
         carry_out = 0;
         result = 0;
         case (sel)
-            3'b000: begin // suma normal con prefix adder
+            3'b000: begin // suma normal
                 {carry_out, result} = sum;
             end
-            3'b001: begin // resta simple, usando suma con complemento a 2 de b
-                {carry_out, result} = PrefixAdder8_sub(a, b);
+            3'b001: begin // resta usando suma con complemento a 2
+                {carry_out, result} = sum_sub;
             end
             3'b010: result = a & b;
             3'b011: result = a | b;
             3'b100: result = a ^ b;
             3'b101: result = a << 1;
             3'b110: result = a >> 1;
-            3'b111: begin
-                {carry_out, result} = sum; // suma también
+            3'b111: begin // también suma
+                {carry_out, result} = sum;
             end
             default: result = 8'b0;
         endcase
     end
 
-    // Función para resta usando prefix adder + complemento a 2 de b
-    function [8:0] PrefixAdder8_sub;
-        input [7:0] x;
-        input [7:0] y;
-        wire [7:0] y_neg;
-        wire [8:0] sum_sub;
-        begin
-            y_neg = ~y + 8'b1; // complemento a 2 de y
-            PrefixAdder8 prefix_sub (
-                .a(x),
-                .b(y_neg),
-                .sum(sum_sub)
-            );
-            PrefixAdder8_sub = sum_sub;
-        end
-    endfunction
-
 endmodule
 
 
-// Prefix Adder 8 bits completo
 module PrefixAdder8 (
     input  [7:0] a,
     input  [7:0] b,
@@ -101,11 +94,9 @@ module PrefixAdder8 (
     wire [7:0] g, p;
     wire [7:0] c;
 
-    // Generate and propagate signals
     assign g = a & b;
     assign p = a ^ b;
 
-    // Carry chain (lookahead)
     assign c[0] = 1'b0;
     assign c[1] = g[0] | (p[0] & c[0]);
     assign c[2] = g[1] | (p[1] & c[1]);
@@ -116,7 +107,6 @@ module PrefixAdder8 (
     assign c[7] = g[6] | (p[6] & c[6]);
     wire c8 = g[7] | (p[7] & c[7]);
 
-    // Sum bits
     assign sum[0] = p[0] ^ c[0];
     assign sum[1] = p[1] ^ c[1];
     assign sum[2] = p[2] ^ c[2];
@@ -128,3 +118,4 @@ module PrefixAdder8 (
     assign sum[8] = c8;
 
 endmodule
+
