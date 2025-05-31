@@ -1,4 +1,3 @@
-// Módulo principal solicitado por Tiny Tapeout
 module tt_um_allanrodas74 (
     input  [7:0]  ui_in,
     output [7:0]  uo_out,
@@ -13,70 +12,113 @@ module tt_um_allanrodas74 (
     wire carry_out;
 
     ALU_8bit alu (
-        .a(ui_in[7:4]),
-        .b(ui_in[3:0]),
-        .sel(uio_in[2:0]),  // código de operación
+        .a(ui_in),
+        .b(uio_in),
+        .sel(uio_in[2:0]),
         .result(result),
         .carry_out(carry_out)
     );
 
     assign uo_out = result;
     assign uio_out[0] = carry_out;
-    assign uio_oe[0] = 1'b1; // habilita la salida
+    assign uio_oe[0] = 1'b1;
     assign uio_out[7:1] = 7'b0;
     assign uio_oe[7:1] = 7'b0;
 
 endmodule
 
-// Módulo ALU de 8 bits
+
 module ALU_8bit (
-    input  [3:0] a,
-    input  [3:0] b,
+    input  [7:0] a,
+    input  [7:0] b,
     input  [2:0] sel,
     output reg [7:0] result,
     output reg carry_out
 );
-    wire [4:0] sum;
-    PrefixAdder8 adder (
+
+    wire [8:0] sum;
+
+    PrefixAdder8 prefix_adder (
         .a(a),
         .b(b),
         .sum(sum)
     );
 
     always @(*) begin
+        carry_out = 0;
+        result = 0;
         case (sel)
-            3'b000: {carry_out, result} = {1'b0, a + b};      // suma normal
-            3'b001: result = a - b;                            // resta
-            3'b010: result = a & b;                            // AND
-            3'b011: result = a | b;                            // OR
-            3'b100: result = a ^ b;                            // XOR
-            3'b101: result = a << 1;                           // shift left
-            3'b110: result = a >> 1;                           // shift right
-            3'b111: {carry_out, result} = {sum[4], sum[3:0]};  // suma por prefix adder
-            default: result = 8'b00000000;
+            3'b000: begin // suma normal con prefix adder
+                {carry_out, result} = sum;
+            end
+            3'b001: begin // resta simple, usando suma con complemento a 2 de b
+                {carry_out, result} = PrefixAdder8_sub(a, b);
+            end
+            3'b010: result = a & b;
+            3'b011: result = a | b;
+            3'b100: result = a ^ b;
+            3'b101: result = a << 1;
+            3'b110: result = a >> 1;
+            3'b111: begin
+                {carry_out, result} = sum; // suma también
+            end
+            default: result = 8'b0;
         endcase
     end
+
+    // Función para resta usando prefix adder + complemento a 2 de b
+    function [8:0] PrefixAdder8_sub;
+        input [7:0] x;
+        input [7:0] y;
+        wire [7:0] y_neg;
+        wire [8:0] sum_sub;
+        begin
+            y_neg = ~y + 8'b1; // complemento a 2 de y
+            PrefixAdder8 prefix_sub (
+                .a(x),
+                .b(y_neg),
+                .sum(sum_sub)
+            );
+            PrefixAdder8_sub = sum_sub;
+        end
+    endfunction
+
 endmodule
 
-// Módulo Prefix Adder de 8 bits (solo 4 bits útiles aquí)
+
+// Prefix Adder 8 bits completo
 module PrefixAdder8 (
-    input  [3:0] a,
-    input  [3:0] b,
-    output [4:0] sum
+    input  [7:0] a,
+    input  [7:0] b,
+    output [8:0] sum
 );
-    wire [3:0] g, p, c;
+    wire [7:0] g, p;
+    wire [7:0] c;
 
-    assign g = a & b;          // generate
-    assign p = a ^ b;          // propagate
+    // Generate and propagate signals
+    assign g = a & b;
+    assign p = a ^ b;
 
+    // Carry chain (lookahead)
     assign c[0] = 1'b0;
     assign c[1] = g[0] | (p[0] & c[0]);
     assign c[2] = g[1] | (p[1] & c[1]);
     assign c[3] = g[2] | (p[2] & c[2]);
+    assign c[4] = g[3] | (p[3] & c[3]);
+    assign c[5] = g[4] | (p[4] & c[4]);
+    assign c[6] = g[5] | (p[5] & c[5]);
+    assign c[7] = g[6] | (p[6] & c[6]);
+    wire c8 = g[7] | (p[7] & c[7]);
 
+    // Sum bits
     assign sum[0] = p[0] ^ c[0];
     assign sum[1] = p[1] ^ c[1];
     assign sum[2] = p[2] ^ c[2];
     assign sum[3] = p[3] ^ c[3];
-    assign sum[4] = g[3] | (p[3] & c[3]);
+    assign sum[4] = p[4] ^ c[4];
+    assign sum[5] = p[5] ^ c[5];
+    assign sum[6] = p[6] ^ c[6];
+    assign sum[7] = p[7] ^ c[7];
+    assign sum[8] = c8;
+
 endmodule
